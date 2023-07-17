@@ -889,7 +889,7 @@ and the numberOfCarriers as argument.
 """
 function ParamsNodal(grid, numberOfCarriers)
 
-    numberOfNodes  = length(grid[Coordinates])
+    numberOfNodes  = length(grid[Coordinates][1,:])
 
     ###############################################################
 
@@ -1401,7 +1401,8 @@ function equilibrium_solve!(ctsys::System; control = VoronoiFVM.NewtonControl(),
     # initialize solution and starting vectors
     inival               = unknowns(ctsys)
     sol                  = unknowns(ctsys)
-    inival              .= 0.0
+    inival              .= 0.2038909527244096
+    # inival[3,:]          = electroNeutralSolution!(ctsys)
 
     # we slightly turn a linear Poisson problem to a nonlinear one with these variables.
     I      = collect(nonlinear_steps:-1:0.0)
@@ -1539,7 +1540,7 @@ function electroNeutralSolution!(ctsys; Newton=false)
         error("this method is currently only working for electrons and holes")
     end
 
-    solution        = zeros(length(grid[Coordinates]))
+    solution        = zeros(length(grid[Coordinates][1,:]))
     iccVector       = collect(1:params.numberOfCarriers)
     zVector         = params.chargeNumbers[iccVector]
     FVector         = data.F[iccVector]
@@ -1548,7 +1549,8 @@ function electroNeutralSolution!(ctsys; Newton=false)
     phi             = 0.0                                            # in equilibrium set to 0
     psi0_initial    = 0.5
 
-    for index = 1:length(regionsAllCells) - 1
+    for index = 1:length((grid[Coordinates][1,:])) - 1
+    #for index = 1:length(regionsAllCells) - 1
 
         ireg          = regionsAllCells[index]
         zVector       = params.chargeNumbers[iccVector]
@@ -1585,6 +1587,30 @@ function electroNeutralSolution!(ctsys; Newton=false)
     solution[1] = solution[2]
 
     return solution
+
+end
+
+function electroNeutralSolution2D(ctsys)
+
+    doping      = [  1.000,  0.100,  0.05, +0.100, +1.000 ] * 1e+24
+    grid        = ctsys.fvmsys.grid
+    params      = ctsys.fvmsys.physics.data.params
+    psi0_values = zeros(num_cellregions(grid))
+
+    for ireg=1:num_cellregions(grid)
+        Ec    = params.bandEdgeEnergy[1,ireg]
+        Ev    = params.bandEdgeEnergy[2,ireg]
+        T     = params.temperature
+        Nc    = params.densityOfStates[1,ireg]
+        Nv    = params.densityOfStates[2,ireg]
+        C     = doping[ireg]
+        Nintr = sqrt( Nc*Nv * exp((Ec-Ev)/(-kB*T)) )
+        @show ireg
+
+        psi0_values[ireg] = (Ec + Ev)/(2*q) - 0.5*(kB*T/q) * log(Nc/Nv) + (kB*T/q) * asinh(C/(2*Nintr))
+
+    end
+    @show psi0_values
 
 end
 
