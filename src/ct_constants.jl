@@ -46,3 +46,14 @@ function set_unity_constants()
     global ε0 = 1.0
     global eV = 1.0
 end
+
+function set_reset_constants()
+    global kB = 1.38064852e-23                 # JK^{-1}   
+    global Planck_constant = 6.62607015e-34    # Js              
+    global q  = 1.602176634e-19                # C    
+    global ε0 = 8.8541878176e-12               # (A*s)/(V*m)
+end
+
+
+# test function 
+plusone(x::Int) = x + 1
