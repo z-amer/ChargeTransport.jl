@@ -13,6 +13,7 @@ using Roots               # for finding zeros
 include("ct_constants.jl")
 
 export kB, Planck_constant, mₑ, q, ε0
+export set_unity_constants, set_reset_constants, plusone
 ##################################################################
 
 include("ct_units.jl")
@@ -82,7 +83,7 @@ export gridplot
 
 export set_contact!
 export compute_open_circuit_voltage
-export electroNeutralSolution!, print_jacobi
+export electroNeutralSolution!, electroNeutralSolution2D, print_jacobi
 export show_params, trap_density!
 export get_current_val, charge_density
 
