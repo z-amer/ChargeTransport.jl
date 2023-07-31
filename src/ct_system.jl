@@ -1606,7 +1606,23 @@ function electroNeutralSolution!(ctsys; Newton=false)
 
 end
 
-function electroNeutralSolution2D(ctsys)
+function regionOfNode(node, grid)
+    firstcell = findfirst(==(node), grid[CellNodes])[2]
+    region    = grid[CellRegions][firstcell]
+    return region
+end
+
+
+function regionsVector(grid)
+    """ for each node, the corresponding region"""
+    NumNodes           = size(grid[Coordinates])[2]
+    nodeRegions        = Vector{Int64}(undef, NumNodes)
+    for node=1:NumNodes
+        region = regionOfNode(node,grid)
+        nodeRegions[node] = region
+    end
+    return nodeRegions
+end
 
     doping      = [  1.000,  0.100,  0.05, +0.100, +1.000 ] * 1e+24
     grid        = ctsys.fvmsys.grid
