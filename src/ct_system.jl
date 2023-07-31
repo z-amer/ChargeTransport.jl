@@ -1624,10 +1624,16 @@ function regionsVector(grid)
     return nodeRegions
 end
 
-    doping      = [  1.000,  0.100,  0.05, +0.100, +1.000 ] * 1e+24
+function electroNeutralSolution2D(ctsys)
+    """ Calculating the electroneutral solution by using the concrete formula for psi_0. """
     grid        = ctsys.fvmsys.grid
     params      = ctsys.fvmsys.physics.data.params
-    psi0_values = zeros(num_cellregions(grid))
+    doping        = params.doping
+
+    psi0Values    = zeros(num_cellregions(grid))
+    NumNodes      = params.numberOfNodes
+    psi0Vector    = zeros(NumNodes)
+    nodeToRegion  = regionsVector(grid)
 
     for ireg=1:num_cellregions(grid)
         Ec    = params.bandEdgeEnergy[1,ireg]
@@ -1635,14 +1641,18 @@ end
         T     = params.temperature
         Nc    = params.densityOfStates[1,ireg]
         Nv    = params.densityOfStates[2,ireg]
-        C     = doping[ireg]
-        Nintr = sqrt( Nc*Nv * exp((Ec-Ev)/(-kB*T)) )
-        @show ireg
+        C     = doping[1,ireg] - doping[2,ireg]       # N_D - N_A
+        Nintr = sqrt( Nc*Nv * exp((Ec-Ev)/(-kB*T)) )  # watch out for the factor 2
 
-        psi0_values[ireg] = (Ec + Ev)/(2*q) - 0.5*(kB*T/q) * log(Nc/Nv) + (kB*T/q) * asinh(C/(2*Nintr))
+        psi0Values[ireg] = (Ec + Ev)/(2*q) - 0.5*(kB*T/q) * log(Nc/Nv) + (kB*T/q) * asinh(C/(2*Nintr))
 
     end
-    @show psi0_values
+
+    for inode=1:NumNodes
+        psi0Vector[inode] = psi0Values[nodeToRegion[inode]]
+    end
+
+    return psi0Vector
 
 end
 
