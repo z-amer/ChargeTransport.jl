@@ -1402,7 +1402,7 @@ a given value.
 
 """
 
-function equilibrium_solve!(ctsys::System; control = VoronoiFVM.NewtonControl(), nonlinear_steps = 20.0)
+function equilibrium_solve!(ctsys::System, inival::VoronoiFVM.SparseSolutionArray{Float64, Int32}; control = VoronoiFVM.NewtonControl(), nonlinear_steps = 20.0)
 
     ctsys.fvmsys.physics.data.calculationType = InEquilibrium
     grid                                      = ctsys.fvmsys.grid
@@ -1413,9 +1413,9 @@ function equilibrium_solve!(ctsys::System; control = VoronoiFVM.NewtonControl(),
     end
 
     # initialize solution and starting vectors
-    inival               = unknowns(ctsys)
+    # inival               = unknowns(ctsys)
     sol                  = unknowns(ctsys)
-    inival              .= 0.2038909527244096
+    # inival              .= 0.2038909527244096
     # inival[3,:]          = electroNeutralSolution!(ctsys)
 
     # we slightly turn a linear Poisson problem to a nonlinear one with these variables.
