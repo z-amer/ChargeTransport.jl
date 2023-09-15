@@ -1403,7 +1403,7 @@ a given value.
 """
 
 function equilibrium_solve!(ctsys::System, inival::VoronoiFVM.SparseSolutionArray{Float64, Int32}; control = VoronoiFVM.NewtonControl(), nonlinear_steps = 20.0)
-
+    """Δu is give as a vector of inital voltages (from electroneutral solution) on the boundaries"""
     ctsys.fvmsys.physics.data.calculationType = InEquilibrium
     grid                                      = ctsys.fvmsys.grid
 
@@ -1412,18 +1412,16 @@ function equilibrium_solve!(ctsys::System, inival::VoronoiFVM.SparseSolutionArra
         set_contact!(ctsys, ibreg, Δu = 0.0)
     end
 
-    # initialize solution and starting vectors
-    # inival               = unknowns(ctsys)
-    sol                  = unknowns(ctsys)
-    # inival              .= 0.2038909527244096
-    # inival[3,:]          = electroNeutralSolution!(ctsys)
+    # initialize solution vector
+    #sol                  = unknowns(ctsys)
+    sol                   = inival
 
     # we slightly turn a linear Poisson problem to a nonlinear one with these variables.
     I      = collect(nonlinear_steps:-1:0.0)
     LAMBDA = 10 .^ (-I)
-    if ctsys.fvmsys.physics.data.boundaryType[1] != SchottkyBarrierLowering
-        prepend!(LAMBDA, 0.0)
-    end
+    # if ctsys.fvmsys.physics.data.boundaryType[1] != SchottkyBarrierLowering
+    #     prepend!(LAMBDA, 0.0)
+    # end
 
     for i in eachindex(LAMBDA)
 
@@ -1642,7 +1640,7 @@ function electroNeutralSolution2D(ctsys)
         Nc    = params.densityOfStates[1,ireg]
         Nv    = params.densityOfStates[2,ireg]
         C     = doping[1,ireg] - doping[2,ireg]       # N_D - N_A
-        Nintr = sqrt( Nc*Nv * exp((Ec-Ev)/(-kB*T)) )  # watch out for the factor 2
+        Nintr = sqrt( Nc*Nv * exp((Ec-Ev)/(-kB*T)) )
 
         psi0Values[ireg] = (Ec + Ev)/(2*q) - 0.5*(kB*T/q) * log(Nc/Nv) + (kB*T/q) * asinh(C/(2*Nintr))
 
