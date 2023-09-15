@@ -67,6 +67,8 @@ export zeroVoltage
 
 include("ct_system.jl")
 
+export regionOfNode, regionsVector, Nintr, electroNeutralSolution2D
+
 export Params, ParamsNodal, Data, System
 export BulkRecombination, set_bulk_recombination
 
@@ -83,7 +85,7 @@ export gridplot
 
 export set_contact!
 export compute_open_circuit_voltage
-export electroNeutralSolution!, electroNeutralSolution2D, print_jacobi
+export electroNeutralSolution!, print_jacobi
 export show_params, trap_density!
 export get_current_val, charge_density
 
