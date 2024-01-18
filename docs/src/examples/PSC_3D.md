@@ -1,6 +1,5 @@
-#=
 # Illustrative example of a three dimensional simulation.
-([source code](SOURCE_URL))
+([source code](https://github.com/PatricioFarrell/ChargeTransport.jl/tree/master/examples/PSC_3D.jl))
 
 This code shows the capability of 3D simulations with ChargeTransport.jl.
 For the sake of performance, we only do equilibrium calculations.
@@ -8,9 +7,8 @@ For the sake of performance, we only do equilibrium calculations.
 Here, a one-dimensional and a three-dimensional simulation of the same device are performed.
 
 The parameters are based on the default parameter set of Ionmonger (with minor adjustments).
-=#
 
-
+````julia
 module PSC_3D
 
 using ChargeTransport
@@ -19,8 +17,11 @@ using GridVisualize
 
 using GLMakie
 using PyPlot
+````
 
-# We strongly emphasize to use GLMakie for the visualization here.
+We strongly emphasize to use GLMakie for the visualization here.
+
+````julia
 function main(;Plotter = GLMakie, plotting = false, test = false, verbose = false,
               parameter_file = "../parameter_files/Params_PSC_TiO2_MAPI_spiro.jl", # choose the parameter file
              )
@@ -49,7 +50,7 @@ function main(;Plotter = GLMakie, plotting = false, test = false, verbose = fals
     end
     ################################################################################
 
-    ## 1D Grid
+    # 1D Grid
     n                = 10
     coord_ndoping    = collect(range(0.0, stop = h_ndoping, length = n))
     coord_intrinsic  = collect(range(h_ndoping, stop = (h_ndoping + h_intrinsic), length = 2 * n))
@@ -65,7 +66,7 @@ function main(;Plotter = GLMakie, plotting = false, test = false, verbose = fals
     bfacemask!(grid1D, [heightLayers[1]], [heightLayers[1]], bregionJ1) # first  inner interface
     bfacemask!(grid1D, [heightLayers[2]], [heightLayers[2]], bregionJ2) # second inner interface
 
-    ## 3D Grid
+    # 3D Grid
     coord_height     = collect(range(0.0, stop = height, length = n))
     coord_width      = collect(range(0.0, stop = width, length =  n))
     grid3D           = simplexgrid(coord, coord_height, coord_width)
@@ -74,15 +75,15 @@ function main(;Plotter = GLMakie, plotting = false, test = false, verbose = fals
     cellmask!(grid3D, [h_ndoping, 0.0, 0.0],             [h_ndoping + h_intrinsic, height, width], regionIntrinsic, tol = 1.0e-18)
     cellmask!(grid3D, [h_ndoping+h_intrinsic, 0.0, 0.0], [h_total, height, width],                 regionAcceptor, tol = 1.0e-18)
 
-    ## metal interfaces [xmin, ymin, zmin], [xmax, ymax, zmax]
+    # metal interfaces [xmin, ymin, zmin], [xmax, ymax, zmax]
     bfacemask!(grid3D, [0.0, 0.0, 0.0],     [0.0, height, width],     bregionDonor) # BregionNumber = 1
     bfacemask!(grid3D, [h_total, 0.0, 0.0], [h_total, height, width], bregionAcceptor) # BregionNumber = 2
 
-    ## interior interfaces
+    # interior interfaces
     bfacemask!(grid3D, [heightLayers[1], 0.0, 0.0], [heightLayers[1], height, width], bregionJ1) # first  inner interface
     bfacemask!(grid3D, [heightLayers[2], 0.0, 0.0], [heightLayers[2], height, width], bregionJ2) # second inner interface
 
-    ## outer no flux interfaces
+    # outer no flux interfaces
     bfacemask!(grid3D, [0.0, 0.0, 0.0],    [h_total, 0.0, width],    bregionNoFlux)
     bfacemask!(grid3D, [0.0, height, 0.0], [h_total, height, width], bregionNoFlux)
     bfacemask!(grid3D, [0.0, 0.0, 0.0],    [h_total, height, 0.0],   bregionNoFlux)
@@ -108,8 +109,8 @@ function main(;Plotter = GLMakie, plotting = false, test = false, verbose = fals
     end
     ################################################################################
 
-    ## Initialize Data instance and fill in predefined data
-    ## Note that we define the data struct with respect to the three-dimensional grid, since we also defined there the outer no flux boundary conditions.
+    # Initialize Data instance and fill in predefined data
+    # Note that we define the data struct with respect to the three-dimensional grid, since we also defined there the outer no flux boundary conditions.
     data                               = Data(grid3D, numberOfCarriers)
     data.modelType                     = Transient
     data.F                             = [FermiDiracOneHalfTeSCA, FermiDiracOneHalfTeSCA, FermiDiracMinusOne]
@@ -146,7 +147,7 @@ function main(;Plotter = GLMakie, plotting = false, test = false, verbose = fals
 
         params.dielectricConstant[ireg]                 = ε[ireg] * ε0
 
-        ## effective DOS, band edge energy and mobilities
+        # effective DOS, band edge energy and mobilities
         params.densityOfStates[iphin, ireg]             = Nn[ireg]
         params.densityOfStates[iphip, ireg]             = Np[ireg]
         params.densityOfStates[iphia, ireg]             = Na[ireg]
@@ -155,7 +156,7 @@ function main(;Plotter = GLMakie, plotting = false, test = false, verbose = fals
         params.bandEdgeEnergy[iphip, ireg]              = Ep[ireg]
         params.bandEdgeEnergy[iphia, ireg]              = Ea[ireg]
 
-        ## recombination parameters
+        # recombination parameters
         params.recombinationRadiative[ireg]             = r0[ireg]
         params.recombinationSRHLifetime[iphin, ireg]    = τn[ireg]
         params.recombinationSRHLifetime[iphip, ireg]    = τp[ireg]
@@ -163,7 +164,7 @@ function main(;Plotter = GLMakie, plotting = false, test = false, verbose = fals
         params.recombinationSRHTrapDensity[iphip, ireg] = trap_density!(iphip, ireg, params, EI[ireg])
     end
 
-    ## interior doping
+    # interior doping
     params.doping[iphin, regionDonor]                   = Cn
     params.doping[iphia, regionIntrinsic]               = Ca
     params.doping[iphip, regionAcceptor]                = Cp
@@ -251,3 +252,9 @@ function test()
 end
 
 end # module
+````
+
+---
+
+*This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
+

@@ -1,16 +1,20 @@
+#=
 # CIGS: stationary with traps and Schottky contacts.
-([source code](https://github.com/PatricioFarrell/ChargeTransport.jl/tree/master/examplesEx112_CIGS_WithTraps.jl))
-Simulating stationary charge transport for CIGS with hole traps and mixed Schottky/Ohmic contact conditions.
-Assume that SRH recombination is only happening within a small regime.
+([source code](SOURCE_URL))
 
-````julia
-module Ex112_CIGS_WithTraps
+Simulating stationary charge transport for CIGS with hole traps and mixed Schottky/Ohmic
+contact conditions. Assume that SRH recombination only happens within a small regime.
+=#
+
+module Ex108_CIGS_WithTraps
 
 using ChargeTransport
 using ExtendableGrids
-using PyPlot
 
-# function to initialize the grid for a possble extension to other p-i-n devices.
+# It seems to be the case that macos has problems with Pyplot
+#using PyPlot
+
+## function to initialize the grid for a possble extension to other p-i-n devices.
 function initialize_pin_grid(refinementfactor, h_ndoping, h_pdoping_left, h_pdoping_trap, h_pdoing_right)
     coord_ndoping    = collect(range(0.0, stop = h_ndoping, length = 2 * refinementfactor))
     coord_pdoping_left  = collect(range(h_ndoping, stop = (h_ndoping + h_pdoping_left), length = 3 * refinementfactor))
@@ -27,47 +31,51 @@ function initialize_pin_grid(refinementfactor, h_ndoping, h_pdoping_left, h_pdop
     return coord
 end
 
-function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test = false, AdditionalTrapSpecies = false)
+# write here instead of "nothing" Pyplot
+function main(;n = 3, Plotter = nothing, plotting = false, verbose = false, test = false, AdditionalTrapSpecies = false)
 
+    if plotting
+        Plotter.close("all")
+    end
     ################################################################################
     if test == false
         println("Set up grid and regions")
     end
     ################################################################################
 
-    # region numbers
-    regionDonor             = 1                           # n doped region
-    regionAcceptorLeft      = 2                           # p doped region
-    regionAcceptorTrap      = 3                           # p doped region with trap
-    regionAcceptorRight     = 4                           # p doped region
-    regions                 = [regionDonor, regionAcceptorLeft, regionAcceptorTrap, regionAcceptorRight]
-    numberOfRegions         = length(regions)
+    ## region numbers
+    regionDonor          = 1                           # n doped region
+    regionAcceptorLeft   = 2                           # p doped region
+    regionAcceptorTrap   = 3                           # p doped region with trap
+    regionAcceptorRight  = 4                           # p doped region
+    regions              = [regionDonor, regionAcceptorLeft, regionAcceptorTrap, regionAcceptorRight]
+    numberOfRegions      = length(regions)
 
-    # boundary region numbers
-    bregionDonor            = 1
-    bregionAcceptor         = 2
-    bregionDALeft           = 3
-    bregionALeftATrap       = 4
-    bregionATrapARight      = 5
+    ## boundary region numbers
+    bregionDonor         = 1
+    bregionAcceptor      = 2
+    bregionDALeft        = 3
+    bregionALeftATrap    = 4
+    bregionATrapARight   = 5
 
-    # grid
-    refinementfactor        = 2^(n-1)
-    h_ndoping               = 0.5    * μm
-    h_pdoping_left          = 1.0    * μm
-    h_pdoping_trap          = 0.1    * μm
-    h_pdoing_right          = 1.0    * μm
-    w_device                = 0.5    * μm  # width of device
-    z_device                = 1.0e-4 * cm  # depth of device
-    h_total                 = h_ndoping + h_pdoping_left + h_pdoping_trap + h_pdoing_right
-    coord                   = initialize_pin_grid(refinementfactor,
-                                                  h_ndoping,
-                                                  h_pdoping_left,
-                                                  h_pdoping_trap,
-                                                  h_pdoing_right)
+    ## grid
+    refinementfactor     = 2^(n-1)
+    h_ndoping            = 0.5    * μm
+    h_pdoping_left       = 1.0    * μm
+    h_pdoping_trap       = 0.1    * μm
+    h_pdoing_right       = 1.0    * μm
+    w_device             = 0.5    * μm  # width of device
+    z_device             = 1.0e-4 * cm  # depth of device
+    h_total              = h_ndoping + h_pdoping_left + h_pdoping_trap + h_pdoing_right
+    coord                = initialize_pin_grid(refinementfactor,
+                                               h_ndoping,
+                                               h_pdoping_left,
+                                               h_pdoping_trap,
+                                               h_pdoing_right)
 
-    grid                    = simplexgrid(coord)
+    grid                 = simplexgrid(coord)
 
-    # set different regions in grid
+    ## set different regions in grid
     cellmask!(grid, [0.0 * μm], [h_ndoping], regionDonor) # n doped
     cellmask!(grid, [h_ndoping], [h_ndoping + h_pdoping_left], regionAcceptorLeft) # p doped
     cellmask!(grid, [h_ndoping + h_pdoping_left], [h_ndoping + h_pdoping_left + h_pdoping_trap], regionAcceptorTrap) # p doped with traps
@@ -80,7 +88,6 @@ function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test 
     if plotting
         gridplot(grid, Plotter = Plotter, legend=:lt)
         Plotter.title("Grid")
-        Plotter.figure()
     end
 
     if test == false
@@ -102,10 +109,10 @@ function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test 
         numberOfCarriers = 2 # electrons and holes
     end
 
-    # physical data
+    ## physical data
     T                 = 300.0                *  K
 
-    # band edge energies
+    ## band edge energies
     Ec_ZnO            = 3.4                  *  eV
     Ev_ZnO            = 0.0                  *  eV
 
@@ -115,14 +122,14 @@ function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test 
     EC                = [Ec_ZnO, Ec_CIGS, Ec_CIGS, Ec_CIGS]
     EV                = [Ev_ZnO, Ev_CIGS, Ev_CIGS, Ev_CIGS]
 
-    # effective densities of states
+    ## effective densities of states
     Nc                = 4.351959895879690e17 / (cm^3)
     Nv                = 9.139615903601645e18 / (cm^3)
 
     NC                = [Nc, Nc, Nc, Nc]
     NV                = [Nv, Nv, Nv, Nv]
 
-    # mobilities
+    ## mobilities
     mun_ZnO           = 100                  * (cm^2) / (V * s)
     mup_ZnO           = 25                   * (cm^2) / (V * s)
     mun_CIGS          = 100.0                * (cm^2) / (V * s)
@@ -131,13 +138,13 @@ function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test 
     μn                = [mun_ZnO, mun_CIGS, mun_CIGS, mun_CIGS]
     μp                = [mup_ZnO, mup_CIGS, mup_CIGS, mup_CIGS]
 
-    # relative dielectric permittivity
+    ## relative dielectric permittivity
     εr_ZnO            = 9                    *  1.0
     εr_CIGS           = 13.6                 *  1.0
 
     ε                 = [εr_ZnO, εr_CIGS, εr_CIGS, εr_CIGS]
 
-    # trap information
+    ## trap information
     zt                = 1 # hole traps
     Et                = 2.8                  *  eV
     ET                = [0.0, 0.0, Et, 0.0]
@@ -147,7 +154,7 @@ function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test 
     mu_t              = 0                    * (cm^2) / (V * s)
     μt                = [0.0, 0.0, mu_t, 0.0]
 
-    # recombination information parameters
+    ## recombination information parameters
     ni_ZnO            = sqrt(Nc * Nv) * exp(-(Ec_ZnO - Ev_ZnO) / (2 * kB * T))   # intrinsic concentration
     n0_ZnO            = Nc * Boltzmann( (Et-Ec_ZnO) / (kB*T) )                   # Boltzmann equilibrium concentration
     p0_ZnO            = ni_ZnO^2 / n0_ZnO                                        # Boltzmann equilibrium concentration
@@ -157,28 +164,25 @@ function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test 
 
     p0                = [p0_ZnO, p0_CIGS, p0_CIGS, p0_CIGS]
     n0                = [n0_ZnO, n0_CIGS, n0_CIGS, n0_CIGS]
-````
 
-set the lifetime value high in all other regions, such that SRH recombination can be neglected there
-
-````julia
+    # set the lifetime value high in all other regions, such that SRH recombination can be neglected there
     SRH_LifeTime      = [1.0e100, 1.0e100, 1.0e-3*ns, 1.0e100]
 
     Auger             = 1.0e-29  * cm^6 / s
     Radiative         = 1.0e-10  * cm^3 / s
 
-    # Schottky contact information
+    ## Schottky contact information
     An                = 4 * pi * q * mₑ * kB^2 / Planck_constant^3
     Ap                = 4 * pi * q * mₑ * kB^2 / Planck_constant^3
     vn                = An * T^2 / (q*Nc)
     vp                = Ap * T^2 / (q*Nv)
     barrier           = 0.7 * eV
 
-    # doping information
+    ## doping information
     Nd                = 1.0e18 / (cm^3)
     Na                = 5.5e15 / (cm^3)
 
-    # we will impose this applied voltage on one boundary
+    ## we will impose this applied voltage on one boundary
     voltageAcceptor   = 1.0 * V
 
     if test == false
@@ -190,7 +194,7 @@ set the lifetime value high in all other regions, such that SRH recombination ca
     end
     ################################################################################
 
-    # initialize Data instance and fill in data
+    ## initialize Data instance and fill in data
     data                                = Data(grid, numberOfCarriers)
     data.modelType                      = Stationary # R = Rn = Rp, since the model type is stationary
     if AdditionalTrapSpecies
@@ -209,10 +213,10 @@ set the lifetime value high in all other regions, such that SRH recombination ca
     data.fluxApproximation             .= ExcessChemicalPotential
 
     if AdditionalTrapSpecies
-        # Here, we enable the traps and parse the respective index and the regions where the trap is defined.
+        ## Here, we enable the traps and parse the respective index and the regions where the trap is defined.
         enable_trap_carrier!(;data = data, trapCarrier = iphit, regions = [regionAcceptorTrap])
     else
-        # pass trap data in stationary setting since there is no separate trap species
+        ## pass trap data in stationary setting since there is no separate trap species
         add_trap_density_Poisson!(data = data, zt = zt, Nt = NT)
     end
 
@@ -226,7 +230,7 @@ set the lifetime value high in all other regions, such that SRH recombination ca
     end
     ################################################################################
 
-    # physical parameters
+    ## physical parameters
     params                                              = Params(grid, numberOfCarriers)
     params.temperature                                  = T
     params.UT                                           = (kB * params.temperature) / q
@@ -240,7 +244,7 @@ set the lifetime value high in all other regions, such that SRH recombination ca
 
         params.dielectricConstant[ireg]                 = ε[ireg] * ε0
 
-        # effective DOS, band-edge energy and mobilities
+        ## effective DOS, band-edge energy and mobilities
         params.densityOfStates[iphin, ireg]             = NC[ireg]
         params.densityOfStates[iphip, ireg]             = NV[ireg]
         params.bandEdgeEnergy[iphin, ireg]              = EC[ireg]
@@ -254,7 +258,7 @@ set the lifetime value high in all other regions, such that SRH recombination ca
             params.mobility[iphit, ireg]                = μt[ireg]
         end
 
-        # recombination parameters
+        ## recombination parameters
         params.recombinationRadiative[ireg]             = Radiative
         params.recombinationSRHLifetime[iphin, ireg]    = SRH_LifeTime[ireg]
         params.recombinationSRHLifetime[iphip, ireg]    = SRH_LifeTime[ireg]
@@ -265,13 +269,13 @@ set the lifetime value high in all other regions, such that SRH recombination ca
 
     end
 
-    # doping -- since we do not set any doping for the traps it is automatically zero
+    ## doping -- since we do not set any doping for the traps it is automatically zero
     params.doping[iphin, regionDonor]                   = Nd
     params.doping[iphip, regionAcceptorLeft]            = Na
     params.doping[iphip, regionAcceptorTrap]            = Na
     params.doping[iphip, regionAcceptorRight]           = Na
 
-    # values for the schottky contacts
+    ## values for the schottky contacts
     params.SchottkyBarrier[bregionAcceptor]             = barrier
     params.bVelocity[iphin, bregionAcceptor]            = vn
     params.bVelocity[iphip, bregionAcceptor]            = vp
@@ -308,7 +312,7 @@ set the lifetime value high in all other regions, such that SRH recombination ca
     end
     ################################################################################
 
-    # solve thermodynamic equilibrium and update initial guess
+    ## solve thermodynamic equilibrium and update initial guess
     solution = equilibrium_solve!(ctsys, control = control)
     inival   = solution
 
@@ -316,18 +320,18 @@ set the lifetime value high in all other regions, such that SRH recombination ca
         label_solution, label_density, label_energy = set_plotting_labels(data)
 
         if AdditionalTrapSpecies
-            # add labels for traps
+            ## add labels for traps
             label_energy[1, iphit] = "\$E_{\\tau}-q\\psi\$"; label_energy[2, iphit] = "\$ - q \\varphi_{\\tau}\$"
             label_density[iphit]   = "\$n_{\\tau}\$";        label_solution[iphit]  = "\$ \\varphi_{\\tau}\$"
         end
 
-        # ##### set legend for plotting routines #####
+        ## ##### set legend for plotting routines #####
+        Plotter.figure()
         plot_energies(Plotter, ctsys, solution, "Equilibrium", label_energy)
         Plotter.figure()
         plot_densities(Plotter, ctsys, solution,"Equilibrium", label_density)
         Plotter.figure()
         plot_solution(Plotter, ctsys, solution, "Equilibrium", label_solution)
-        Plotter.figure()
     end
 
     if test == false
@@ -350,32 +354,33 @@ set the lifetime value high in all other regions, such that SRH recombination ca
 
         Δu = biasValues[i] # bias
 
-        # Apply new voltage: set non equilibrium boundary conditions
+        ## Apply new voltage: set non equilibrium boundary conditions
         set_contact!(ctsys, bregionAcceptor, Δu = Δu)
 
         if test == false
             println("bias: Δu = $(Δu) V")
         end
 
-        # solve time step problems with timestep Δt
+        ## solve time step problems with timestep Δt
         solution = solve(ctsys, inival = inival, control = control)
         inival   = solution
 
-        # save IV data
+        ## save IV data
         current = get_current_val(ctsys, solution)
         push!(IV, w_device * z_device * current)
 
-        # store charge density in donor region (ZnO)
+        ## store charge density in donor region (ZnO)
         push!(chargeDensities, charge_density(ctsys, solution)[regionDonor])
 
 
     end # bias loop
 
-    # compute static capacitance: check this is correctly computed
+    ## compute static capacitance: check this is correctly computed
     staticCapacitance = diff(chargeDensities) ./ diff(biasValues)
 
-    # plot solution and IV curve
+    ## plot solution and IV curve
     if plotting
+        Plotter.figure()
         plot_energies(Plotter, ctsys, solution, "bias \$\\Delta u\$ = $(endVoltage) V", label_energy)
         Plotter.figure()
         plot_densities(Plotter, ctsys, solution,"bias \$\\Delta u\$ = $(endVoltage) V", label_density)
@@ -404,8 +409,8 @@ set the lifetime value high in all other regions, such that SRH recombination ca
 end #  main
 
 function test()
-    testval                  = 1.484831267714751
-    testvalAdditionalSpecies = 1.1334257666192746
+    testval                  = 1.484831264268335
+    testvalAdditionalSpecies = 1.1334257649339574
 
     main(test = true, AdditionalTrapSpecies = false) ≈ testval && main(test = true, AdditionalTrapSpecies = true) ≈ testvalAdditionalSpecies
 end
@@ -416,9 +421,4 @@ end
 
 
 end # module
-````
-
----
-
-*This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
 

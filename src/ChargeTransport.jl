@@ -36,7 +36,7 @@ export QType
 export QFModelType, DiscontQF, ContQF
 
 export OuterBoundaryModelType, OuterBoundaryModelType, InterfaceModelType
-export OhmicContact, SchottkyContact, SchottkyBarrierLowering
+export OhmicContact, SchottkyContact, SchottkyBarrierLowering, MixedOhmicSchottkyContact
 export InterfaceNone, InterfaceRecombination
 
 export ModelType, Transient, Stationary
@@ -53,7 +53,7 @@ export SRHTrapsTransient, SRHTrapsStationary
 export AuxModelSRHType, SRH2SpeciesPresentTrapDens
 
 export GenerationModelType
-export GenerationNone, GenerationBeerLambert, GenerationUniform
+export GenerationNone, GenerationBeerLambert, GenerationUniform, GenerationUserDefined
 export BarrierLoweringType
 export BarrierLoweringOn, BarrierLoweringOff
 ##################################################################
@@ -63,6 +63,7 @@ include("ct_physics.jl")
 export get_BEE, get_DOS, etaFunction, get_density
 export breaction!, bstorage!, reaction!, storage!, flux!
 export zeroVoltage
+export BeerLambert
 ##################################################################
 
 include("ct_system.jl")

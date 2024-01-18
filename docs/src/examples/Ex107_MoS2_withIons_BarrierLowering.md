@@ -1,14 +1,11 @@
-
-#=
 # MoS2 with moving defects and Schottky Barrier Lowering.
-([source code](SOURCE_URL))
+([source code](https://github.com/PatricioFarrell/ChargeTransport.jl/tree/master/examples/Ex107_MoS2_withIons_BarrierLowering.jl))
 
 Memristor simulation with additional moving positively charged defects and
 Schottky barrier lowering at the contacts.
-=#
 
-
-module Ex111_MoS2_withIons_BarrierLowering
+````julia
+module Ex107_MoS2_withIons_BarrierLowering
 
 using ChargeTransport
 using ExtendableGrids
@@ -22,24 +19,27 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     end
     ################################################################################
 
-    ## region numbers
+    # region numbers
     regionflake  = 1
 
-    ## boundary region numbers
+    # boundary region numbers
     bregionLeft  = 1
     bregionRight = 2
 
-    ## grid
+    # grid
     h_flake      = 1.0 * μm # length of the conducting channel
+````
 
-    # non-uniform grid
+non-uniform grid
+
+````julia
     coord1       = geomspace(0.0,       h_flake/2, 5e-4 * h_flake, 2e-2 * h_flake)
     coord2       = geomspace(h_flake/2, h_flake,   2e-2 * h_flake, 5e-4 * h_flake)
     coord        = glue(coord1, coord2)
 
     grid         = simplexgrid(coord)
 
-    ## set region in grid
+    # set region in grid
     cellmask!(grid, [0.0], [h_flake], regionflake, tol = 1.0e-18)
 
     if plotting
@@ -56,15 +56,17 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     end
     ################################################################################
 
-    ## set indices of unknowns
+    # set indices of unknowns
     iphin            = 1 # electron quasi Fermi potential
     iphip            = 2 # hole quasi Fermi potential
     iphix            = 3
-    ipsi             = 4
 
     numberOfCarriers = 3 # electrons, holes and ions
+````
 
-    # We define the physical data
+We define the physical data
+
+````julia
     T                = 300.0             *  K
     εr               = 9.0               *  1.0                   # relative dielectric permittivity
     εi               = 1.0 * εr                                   # image force dielectric permittivity
@@ -81,7 +83,7 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     μp               = 1e-4                * (m^2) / (V * s)
     μx               = 0.8e-13             * (m^2) / (V * s)
 
-    ## Schottky contact
+    # Schottky contact
     barrierLeft      = 0.225                *  eV
     barrierRight     = 0.215                *  eV
     An               = 4 * pi * q * 0.55 * mₑ * kB^2 / Planck_constant^3
@@ -92,13 +94,16 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     Nd               = 1.0e17               / (m^3) # doping
 
     Area             = 2.1e-11 *  m^2                # Area of electrode
+````
 
-    # Scan protocol information
+Scan protocol information
+
+````julia
     endTime          = 9.6    * s
     amplitude        = 12.0   * V
     scanrate         = 4*amplitude/endTime
 
-    ## Define scan protocol function
+    # Define scan protocol function
     function scanProtocol(t)
 
         if    0.0 <= t  && t <= endTime/4
@@ -114,8 +119,11 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
         return biasVal
 
     end
+````
 
-    # Apply zero voltage on left boundary and a linear scan protocol on right boundary
+Apply zero voltage on left boundary and a linear scan protocol on right boundary
+
+````julia
     contactVoltageFunction = [zeroVoltage, scanProtocol]
 
     if test == false
@@ -128,7 +136,7 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     end
     ################################################################################
 
-    ## Initialize Data instance and fill in predefined data
+    # Initialize Data instance and fill in predefined data
     data                            = Data(grid, numberOfCarriers, contactVoltageFunction = contactVoltageFunction)
     data.modelType                  = Transient
     data.F                          = [FermiDiracOneHalfTeSCA, FermiDiracOneHalfTeSCA, FermiDiracMinusOne]
@@ -171,7 +179,7 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
         params.dielectricConstant[ireg]           = εr * ε0
         params.dielectricConstantImageForce[ireg] = εi * ε0
 
-        ## effective DOS, band-edge energy and mobilities
+        # effective DOS, band-edge energy and mobilities
         params.densityOfStates[iphin, ireg]       = Nc
         params.densityOfStates[iphip, ireg]       = Nv
         params.bandEdgeEnergy[iphin, ireg]        = Ec
@@ -190,7 +198,7 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     params.bVelocity[iphip, bregionLeft]          = vp
     params.bVelocity[iphip, bregionRight]         = vp
 
-    ## interior doping
+    # interior doping
     params.doping[iphin, regionflake]             = Nd
 
     data.params                                   = params
@@ -225,9 +233,9 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
 
     control.Δu_opt       = Inf
     control.Δt           = 1.0e-4
-    control.Δt_min       = 1.0e-7
-    control.Δt_max       = 1.0e-2
-    control.Δt_grow      = 1.005
+    control.Δt_min       = 1.0e-5
+    control.Δt_max       = 5.0e-2
+    control.Δt_grow      = 1.05
 
     if test == false
         println("*** done\n")
@@ -239,7 +247,7 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     end
     ################################################################################
 
-    ## initialize solution and starting vectors
+    # initialize solution and starting vectors
     solEQ  = equilibrium_solve!(ctsys, control = control, nonlinear_steps = 0)
     inival  = solEQ
 
@@ -316,14 +324,20 @@ function main(;Plotter = PyPlot, plotting = false, verbose = false, test = false
     end
 
 
-    testval = sum(filter(!isnan, IV))/length(IV)
+    testval = sum(filter(!isnan, solEQ))/length(solEQ)
     return testval
 
 end #  main
 
 function test()
-   main(test = true, barrierLowering = true) ≈ 32350.400882959268 #  main(test = true, barrierLowering = false) ≈ 19877.638250681746
+   main(test = true, barrierLowering = true) ≈ -1692.2303837883194
 end
 
 
 end # module
+````
+
+---
+
+*This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
+

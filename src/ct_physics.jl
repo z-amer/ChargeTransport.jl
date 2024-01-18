@@ -313,11 +313,11 @@ assuming a bipolar semiconductor. In general, we have for some given charge numb
 
 where ``C_\\alpha`` corresponds to some doping w.r.t. the species ``\\alpha``.
 
-The boundary conditions for the charge carriers are set in the main file. Hence,
+The boundary conditions for electrons and holes are dirichlet conditions, where
 
-``f[n_\\alpha] = 0```
+`` \\varphi_{\\alpha} = U```
 
-for all charge carriers ``\\alpha``.
+with ``U`` as an applied voltage.
 """
 function breaction!(f, u, bnode, data, ::Type{OhmicContact})
 
@@ -439,6 +439,42 @@ function breaction!(f, u, bnode, data, ::Type{SchottkyContact})
 
 end
 
+###########################################################################
+###########################################################################
+"""
+$(TYPEDSIGNATURES)
+A mixed Schottky-Ohmic boundary type condition, where we impose on the electric potential (Schottky)
+
+``\\psi = - \\phi_S/q + U, ``
+
+with  ``\\phi_S`` as given value (non-negative Schottky barrier) and ``U`` to the applied voltage. The quantitity ``\\phi_S`` needs to be specified in the main file.
+For eletrons and holes we assume the following (Ohmic)
+
+`` \\varphi_{\\alpha} = U``.
+"""
+
+function breaction!(f, u, bnode, data, ::Type{MixedOhmicSchottkyContact})
+
+    iphin     = data.bulkRecombination.iphin # integer index of φ_n
+    iphip     = data.bulkRecombination.iphip # integer index of φ_p
+    ipsiIndex = length(data.chargeCarrierList) + 1 # This is necessary, since passing something other than an Integer in boundary_dirichlet!() causes allocations
+
+    params    = data.params
+    Ec        = params.bBandEdgeEnergy[iphin, bnode.region]
+    Δu        = params.contactVoltage[bnode.region] + data.contactVoltageFunction[bnode.region](bnode.time)
+
+
+    # electric potential BC
+    boundary_dirichlet!(f, u, bnode, species=ipsiIndex, region=bnode.region, value=(- (params.SchottkyBarrier[bnode.region]  - Ec)/q) + Δu)
+
+    # electrons and holes boundary condition
+    boundary_dirichlet!(f, u, bnode, species = iphin, region=bnode.region, value=Δu)
+    boundary_dirichlet!(f, u, bnode, species = iphip, region=bnode.region, value=Δu)
+
+end
+
+###########################################################################
+###########################################################################
 
 """
 $(TYPEDSIGNATURES)
@@ -728,7 +764,7 @@ end
 
 function addGeneration!(f, u, node, data)
 
-    generationTerm = generation(data, node.region, node.coord[node.index], data.generationModel)
+    generationTerm = generation(data, node, data.generationModel)
 
     for icc ∈ data.electricCarrierList
         icc    = data.chargeCarrierList[icc] # based on user index and regularity of solution quantities or integers are used and depicted here
@@ -894,32 +930,57 @@ $(SIGNATURES)
 Compute trap densities for a given trap energy.
 [Currently, only done for the Boltzmann statistics and for region dependent parameters.]
 """
-function trap_density!(icc, ireg, data, Et)
-    params      = data.params
+function trap_density!(icc, ireg, params, Et)
 
     params.densityOfStates[icc, ireg] * exp( params.chargeNumbers[icc] * (params.bandEdgeEnergy[icc, ireg] - Et) / (kB * params.temperature))
 end
 
 # The generation rate ``G``, which occurs in the right-hand side of the
 # continuity equations with a uniform generation rate.
-function generation(data, ireg, node, ::Type{GenerationUniform})
+function generation(data, node, ::Type{GenerationUniform})
 
-    return data.λ2 * data.params.generationUniform[ireg]
+    return data.λ2 * data.params.generationUniform[node.region]
 end
 
 
 # The generation rate ``G``, which occurs in the right-hand side of the
 # continuity equations obeying the Beer-Lambert law.
 # only works in 1D till now; adjust node, when multidimensions
-function generation(data, ireg, node, ::Type{GenerationBeerLambert})
+function generation(data, node, ::Type{GenerationBeerLambert})
 
     params = data.params
+    ireg   = node.region
+    node   = node.coord[node.index]
 
-    return data.λ2 * params.generationIncidentPhotonFlux[ireg] * params.generationAbsorption[ireg] * exp( - params.invertedIllumination * params.generationAbsorption[ireg] * (node - params.generationPeak))
+    return data.λ2 .* params.generationIncidentPhotonFlux[ireg] .* params.generationAbsorption[ireg] .* exp.( - params.invertedIllumination .* params.generationAbsorption[ireg] .* (node .- params.generationPeak))
 
 end
 
-generation(data, ireg, node, ::Type{GenerationNone}) = 0.0
+
+# The generation rate ``G``, which occurs in the right-hand side of the
+# continuity equations with a user defined generation rate.
+# only works in 1D till now; adjust node, when multidimensions
+function generation(data, node, ::Type{GenerationUserDefined})
+
+    return data.λ2 .* data.generationData[node.index]
+
+end
+
+generation(data, node, ::Type{GenerationNone}) = 0.0
+
+"""
+$(SIGNATURES)
+Beer-Lambert function for the visualization of this type of photogeneration profile.
+"""
+
+function BeerLambert(ctsys, ireg, node)
+
+    data = ctsys.fvmsys.physics.data
+    params = data.params
+
+    params.generationIncidentPhotonFlux[ireg] .* params.generationAbsorption[ireg] .* exp.( - params.invertedIllumination .* params.generationAbsorption[ireg] .* (node .- params.generationPeak))
+
+end
 
 ##########################################################
 ##########################################################

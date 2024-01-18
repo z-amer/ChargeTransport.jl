@@ -41,6 +41,12 @@ Abstract type for schottky contacts as boundary model.
 """
 abstract type SchottkyContact end
 
+"""
+Abstract type for a mixed Ohmic and Schottky boundary model,
+resulting in all Dirichlet type conditions for electrons, holes
+and the electric potential.
+"""
+abstract type MixedOhmicSchottkyContact end
 
 abstract type SchottkyBarrierLowering end
 
@@ -62,7 +68,7 @@ abstract type InterfaceRecombination end
 """
 Possible types of outer boundary model.
 """
-const OuterBoundaryModelType = Union{Type{OhmicContact}, Type{SchottkyContact}, Type{SchottkyBarrierLowering}}
+const OuterBoundaryModelType = Union{Type{OhmicContact}, Type{SchottkyContact}, Type{SchottkyBarrierLowering}, Type{MixedOhmicSchottkyContact}}
 
 
 """
@@ -235,11 +241,18 @@ Abstract type for no generation model.
 """
 abstract type GenerationNone end
 
+"""
+$(TYPEDEF)
+Abstract type for user defined generation.
+"""
+abstract type GenerationUserDefined end
+
 ##########################################################
 """
 Possible types for generation model.
 """
-const GenerationModelType = Union{Type{GenerationUniform}, Type{GenerationBeerLambert}, Type{GenerationNone}}
+const GenerationModelType = Union{Type{GenerationUniform}, Type{GenerationBeerLambert},
+                                  Type{GenerationNone}, Type{GenerationUserDefined}}
 
 
 ##########################################################

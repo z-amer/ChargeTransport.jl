@@ -12,7 +12,9 @@ module Ex101_PIN
 
 using ChargeTransport  # drift-diffusion solver
 using ExtendableGrids  # grid initializer
-using PyPlot           # solution visualizer
+
+# It seems to be the case that macos has problems with Pyplot
+#using PyPlot           # solution visualizer
 
 ## This function is used to initialize the grid for a possible extension to other p-i-n devices.
 function initialize_pin_grid(refinementfactor, h_ndoping, h_intrinsic, h_pdoping)
@@ -25,9 +27,12 @@ function initialize_pin_grid(refinementfactor, h_ndoping, h_intrinsic, h_pdoping
     return coord
 end
 
+# write here instead of "nothing" Pyplot
+function main(;n = 3, Plotter = nothing, plotting = false, verbose = false, test = false, unknown_storage=:sparse)
 
-function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test = false, unknown_storage=:sparse)
-
+    if plotting
+        Plotter.close("all")
+    end
     ################################################################################
     if test == false
         println("Set up grid and regions")
@@ -240,7 +245,7 @@ function main(;n = 3, Plotter = PyPlot, plotting = false, verbose = false, test 
         label_solution, label_density, label_energy, label_BEE = set_plotting_labels(data)
 
         psi0 = electroNeutralSolution!(ctsys)
-        PyPlot.figure()
+        Plotter.figure()
         plot_energies(Plotter, ctsys, label_BEE)
         Plotter.figure()
         plot_doping(Plotter, ctsys, label_density)
