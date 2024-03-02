@@ -705,6 +705,14 @@ mutable struct ParamsOptical
     eigenvalues                  ::  Array{Float64,1}
 
     ###############################################################
+    ####        number of carriers x number of regions         ####
+    ###############################################################
+    """
+    A 2D array with the corresponding free carrier absorption values.
+    """
+    absorptionFreeCarriers       ::  Array{Float64,2}
+
+    ###############################################################
     ####        number of nodes x number of eigenvalues        ####
     ###############################################################
     """
@@ -1115,6 +1123,11 @@ function ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
     ####                 number of eigenvalues                 ####
     ###############################################################
     paramsoptical.eigenvalues           = spzeros(Float64, numberOfEigenvalues)
+
+    ###############################################################
+    ####        number of carriers x number of regions         ####
+    ###############################################################
+    paramsoptical.absorptionFreeCarriers       = spzeros(Float64, numberOfCarriers, numberOfRegions)
 
     ###############################################################
     ####        number of nodes x number of eigenvalues        ####
