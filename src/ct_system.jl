@@ -633,6 +633,92 @@ end
 """
 $(TYPEDEF)
 
+A struct holding the physical parameters for the Helmholz equation simulation in a laser.
+
+$(TYPEDFIELDS)
+
+"""
+mutable struct ParamsOptical
+
+    ###############################################################
+    ####                     real numbers                      ####
+    ###############################################################
+    """
+    The wavelength for the laser on hand.
+    """
+    laserWavelength              ::  Float64
+
+    ###############################################################
+    ####                    number of nodes                    ####
+    ###############################################################
+    """
+    A 1D array with the calculated values for the solution ``\\varphi_n`` on the nodes.
+    """
+    oldSolutionPhin              ::  Array{Float64, 1}
+
+    """
+    A 1D array with the calculated values for the solution ``\\varphi_p`` on the nodes.
+    """
+    oldSolutionPhip              ::  Array{Float64, 1}
+
+    """
+    A 1D array with the calculated values for the solution ``\\psi`` on the nodes.
+    """
+    oldSolutionPsi               ::  Array{Float64, 1}
+
+    ###############################################################
+    ####                   number of regions                   ####
+    ###############################################################
+    """
+    A region dependant array for the absorption coefficient in the
+    absorption function in the medium.
+    """
+    absorption_0                 ::  Array{Float64,1}
+
+    """
+    A region dependant array for the gain model coefficient.
+    """
+    gain_0                       ::  Array{Float64,1}
+
+    """
+    A region dependent array for the refractive index coefficient.
+    """
+    refractiveIndex_0            ::  Array{Float64,1}
+
+    """
+    A region dependent array for the second refractive index coefficient.
+    """
+    refractiveIndex_d            ::  Array{Float64,1}
+
+    """
+    A region dependent array for the refractive index exponent.
+    """
+    refractiveIndex_γ            ::  Array{Float64,1}
+
+    ###############################################################
+    ####                 number of eigenvalues                 ####
+    ###############################################################
+    """
+    An array of the eigenvalues.
+    """
+    eigenvalues                  ::  Array{Float64,1}
+
+    ###############################################################
+    ####        number of nodes x number of eigenvalues        ####
+    ###############################################################
+    """
+    A 2D array with the corresponding eigenvector for eah eigenvalue.
+    """
+    eigenvectors                 ::  Array{Float64, 2}
+
+    ###############################################################
+    ParamsOptical() = new()
+
+end
+
+"""
+$(TYPEDEF)
+
 A struct holding all data information including model and numerics information,
 but also all physical parameters for a drift-diffusion simulation of a semiconductor device.
 
@@ -812,6 +898,8 @@ mutable struct Data{TFuncs<:Function, TVoltageFunc<:Function, TGenerationData<:U
     """
     paramsnodal                  :: ParamsNodal
 
+    paramsoptical                :: ParamsOptical
+
     ###############################################################
     Data{TFuncs, TVoltageFunc, TGenerationData}() where {TFuncs, TVoltageFunc, TGenerationData} = new()
 
@@ -984,14 +1072,58 @@ function ParamsNodal(grid, numberOfCarriers)
 
 
     ###############################################################
-    ####        number of nodes x number of eigenvalues        ####
-    ###############################################################
-    #paramsnodal.eigenvectors            = spzeros(Float64, numberOfEigenvalues, numberOfNodes)
-
-
-    ###############################################################
     return paramsnodal
 
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Simplified constructor for ParamsOptical which only takes the grid,
+numberOfCarriers and numberOfEigenvalues as argument.
+
+"""
+function ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
+
+    numberOfNodes           = num_nodes(grid)
+    numberOfRegions         = grid[NumCellRegions]
+    ###############################################################
+
+    paramsoptical = ParamsOptical()
+
+    ###############################################################
+    ####                     real numbers                      ####
+    ###############################################################
+    paramsoptical.laserWavelength              = 0.0
+
+    ###############################################################
+    ####                    number of nodes                    ####
+    ###############################################################
+    paramsoptical.oldSolutionPhin       = spzeros(Float64, numberOfNodes)
+    paramsoptical.oldSolutionPhip       = spzeros(Float64, numberOfNodes)
+    paramsoptical.oldSolutionPsi        = spzeros(Float64, numberOfNodes)
+
+    ###############################################################
+    ####                   number of regions                   ####
+    ###############################################################
+    paramsoptical.absorption_0                 = spzeros(Float64, numberOfRegions)
+    paramsoptical.gain_0                       = spzeros(Float64, numberOfRegions)
+    paramsoptical.refractiveIndex_0            = spzeros(Float64, numberOfRegions)
+    paramsoptical.refractiveIndex_d            = spzeros(Float64, numberOfRegions)
+    paramsoptical.refractiveIndex_γ            = spzeros(Float64, numberOfRegions)
+
+    ###############################################################
+    ####                 number of eigenvalues                 ####
+    ###############################################################
+    paramsoptical.eigenvalues           = spzeros(Float64, numberOfEigenvalues)
+
+    ###############################################################
+    ####        number of nodes x number of eigenvalues        ####
+    ###############################################################
+    paramsoptical.eigenvectors          = spzeros(Float64, numberOfEigenvalues, numberOfNodes)
+
+    ###############################################################
+    return paramsoptical
 end
 
 
@@ -1075,8 +1207,9 @@ function Data(grid, numberOfCarriers; contactVoltageFunction = [zeroVoltage, zer
     ###############################################################
     ####          Physical parameters as own structs           ####
     ###############################################################
-    data.params                                = Params(grid, numberOfCarriers)
-    data.paramsnodal                           = ParamsNodal(grid, numberOfCarriers)
+    data.params                                = Params(grid, numberOfCarriers, numberOfEigenvalues=data.numberOfEigenvalues)
+    data.paramsnodal                           = ParamsNodal(grid, numberOfCarriers, numberOfEigenvalues=data.numberOfEigenvalues)
+    data.paramsoptical                         = ParamsOptical(grid, numberOfCarriers, data.numberOfEigenvalues)
 
     ###############################################################
 
