@@ -70,7 +70,7 @@ include("ct_system.jl")
 
 export regionOfNode, regionsVector, Nintr, electroNeutralSolution2D
 
-export Params, ParamsNodal, Data, System
+export Params, ParamsNodal, ParamsOptical, Data, System
 export BulkRecombination, set_bulk_recombination
 
 export enable_ionic_carrier!
