@@ -315,10 +315,10 @@ mutable struct Params
     """
     invertedIllumination         ::  Int64
 
-    """
-    Number of desired eigenvalues.
-    """
-    numberOfEigenvalues          :: Int64
+    # """
+    # Number of desired eigenvalues when coupling the charge transport with the Helmholtz model.
+    # """
+    #numberOfEigenvalues          ::  Int64
 
     ###############################################################
     ####                     real numbers                      ####
@@ -353,10 +353,10 @@ mutable struct Params
     """
     generationPeak               ::  Float64
 
-    """
-    The wavelength for the laser on hand.
-    """
-    laserWavelength              ::  Float64
+    # """
+    # The wavelength for the laser on hand.
+    # """
+    # laserWavelength              ::  Float64
 
     ###############################################################
     ####              number of boundary regions               ####
@@ -476,10 +476,10 @@ mutable struct Params
     """
     mobility                     ::  Array{Float64,2}
 
-    """
-    A 2D array with the corresponding free carrier absorption values.
-    """
-    absorptionFreeCarriers       ::  Array{Float64,2}
+    # """
+    # A 2D array with the corresponding free carrier absorption values.
+    # """
+    # absorptionFreeCarriers       ::  Array{Float64,2}
 
 
     ###############################################################
@@ -536,37 +536,38 @@ mutable struct Params
     """
     recombinationRadiative       ::  Array{Float64,1}
 
-    """
-    A region dependant array for the absorption coefficient in the absorption function in the medium.
-    """
-    absorption_0                 ::  Array{Float64,1}
+    # """
+    # A region dependant array for the absorption coefficient in the absorption function in the medium.
+    # """
+    # absorption_0                 ::  Array{Float64,1}
 
-    """
-    A region dependant array for the gain model coefficient.
-    """
-    gain_0                       ::  Array{Float64,1}
+    # """
+    # A region dependant array for the gain model coefficient.
+    # """
+    # gain_0                       ::  Array{Float64,1}
 
-    """
-    A region dependent array for the refractive index coefficient.
-    """
-    refractiveIndex_0            ::  Array{Float64,1}
+    # """
+    # A region dependent array for the refractive index coefficient.
+    # """
+    # refractiveIndex_0            ::  Array{Float64,1}
 
-    """
-    A region dependent array for the second refractive index coefficient.
-    """
-    refractiveIndex_d            ::  Array{Float64,1}
+    # """
+    # A region dependent array for the second refractive index coefficient.
+    # """
+    # refractiveIndex_d            ::  Array{Float64,1}
 
-    """
-    A region dependent array for the refractive index exponent.
-    """
-    refractiveIndex_γ            ::  Array{Float64,1}
+    # """
+    # A region dependent array for the refractive index exponent.
+    # """
+    # refractiveIndex_γ            ::  Array{Float64,1}
+
     ###############################################################
     ####                 number of eigenvalues                 ####
     ###############################################################
-    """
-    An array of the eigenvalues.
-    """
-    #eigenvalues                  ::  Array{Float64,1}
+    # """
+    # An array of the eigenvalues.
+    # """
+    # eigenvalues                  ::  Array{Float64,1}
 
     ###############################################################
     Params() = new() # standard constructor
@@ -620,10 +621,10 @@ mutable struct ParamsNodal
     ###############################################################
     ####        number of nodes x number of eigenvalues        ####
     ###############################################################
-    """
-    A 2D array with the corresponding eigenvector for eah eigenvalue.
-    """
-    #eigenvectors                 ::  Array{Float, 2}
+    # """
+    # A 2D array with the corresponding eigenvector for eah eigenvalue.
+    # """
+    # eigenvectors                 ::  Array{Float64, 2}
 
     ###############################################################
     ParamsNodal() = new()
@@ -946,7 +947,6 @@ function Params(grid, numberOfCarriers)
     numberOfNodes           = num_nodes(grid)
     numberOfRegions         = grid[NumCellRegions]
     numberOfBoundaryRegions = grid[NumBFaceRegions]
-    numberOfEigenvalues     = 20
     ###############################################################
 
     params = Params()
@@ -959,7 +959,7 @@ function Params(grid, numberOfCarriers)
     params.numberOfBoundaryRegions      = numberOfBoundaryRegions
     params.numberOfCarriers             = numberOfCarriers
     params.invertedIllumination         = 1                       # we assume that light enters from the left.
-    params.numberOfEigenvalues          = numberOfEigenvalues
+    #params.numberOfEigenvalues          = numberOfEigenvalues
 
     ###############################################################
     ####                     real numbers                      ####
@@ -970,7 +970,7 @@ function Params(grid, numberOfCarriers)
     params.r0                           = 0.0                 # r0 prefactor electro-chemical reaction
     params.prefactor_SRH                = 1.0
     params.generationPeak               = 0.0                 # parameter which shifts Beer-Lambert generation peak
-    params.laserWavelength              = 0.0
+    # params.laserWavelength              = 0.0
 
     ###############################################################
     ####              number of boundary regions               ####
@@ -1007,7 +1007,7 @@ function Params(grid, numberOfCarriers)
     params.densityOfStates              = spzeros(Float64, numberOfCarriers, numberOfRegions)
     params.bandEdgeEnergy               = spzeros(Float64, numberOfCarriers, numberOfRegions)
     params.mobility                     = spzeros(Float64, numberOfCarriers, numberOfRegions)
-    params.absorptionFreeCarriers       = spzeros(Float64, numberOfCarriers, numberOfRegions)
+    # params.absorptionFreeCarriers       = spzeros(Float64, numberOfCarriers, numberOfRegions)
 
     ###############################################################
     #### 2 x number of regions (for electrons and holes only!) ####
@@ -1025,16 +1025,16 @@ function Params(grid, numberOfCarriers)
     params.generationIncidentPhotonFlux = spzeros(Float64, numberOfRegions)
     params.generationAbsorption         = spzeros(Float64, numberOfRegions)
     params.recombinationRadiative       = spzeros(Float64, numberOfRegions)
-    params.absorption_0                 = spzeros(Float64, numberOfRegions)
-    params.gain_0                       = spzeros(Float64, numberOfRegions)
-    params.refractiveIndex_0            = spzeros(Float64, numberOfRegions)
-    params.refractiveIndex_d            = spzeros(Float64, numberOfRegions)
-    params.refractiveIndex_γ            = spzeros(Float64, numberOfRegions)
+    # params.absorption_0                 = spzeros(Float64, numberOfRegions)
+    # params.gain_0                       = spzeros(Float64, numberOfRegions)
+    # params.refractiveIndex_0            = spzeros(Float64, numberOfRegions)
+    # params.refractiveIndex_d            = spzeros(Float64, numberOfRegions)
+    # params.refractiveIndex_γ            = spzeros(Float64, numberOfRegions)
 
     ###############################################################
     ####                 number of eigenvalues                 ####
     ###############################################################
-    #params.eigenvalues                 = spzeroes(Float64, numberOfEigenvalues)
+    # params.eigenvalues                 = spzeros(Float64, numberOfEigenvalues)
 
     ###############################################################
     return params
@@ -1069,7 +1069,6 @@ function ParamsNodal(grid, numberOfCarriers)
     paramsnodal.mobility                = spzeros(Float64, numberOfCarriers, numberOfNodes)
     paramsnodal.densityOfStates         = spzeros(Float64, numberOfCarriers, numberOfNodes)
     paramsnodal.bandEdgeEnergy          = spzeros(Float64, numberOfCarriers, numberOfNodes)
-
 
     ###############################################################
     return paramsnodal
