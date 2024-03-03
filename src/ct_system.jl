@@ -1219,8 +1219,8 @@ function Data(grid, numberOfCarriers; contactVoltageFunction = [zeroVoltage, zer
     ###############################################################
     ####          Physical parameters as own structs           ####
     ###############################################################
-    data.params                                = Params(grid, numberOfCarriers, numberOfEigenvalues=data.numberOfEigenvalues)
-    data.paramsnodal                           = ParamsNodal(grid, numberOfCarriers, numberOfEigenvalues=data.numberOfEigenvalues)
+    data.params                                = Params(grid, numberOfCarriers)
+    data.paramsnodal                           = ParamsNodal(grid, numberOfCarriers)
     data.paramsoptical                         = ParamsOptical(grid, numberOfCarriers, data.numberOfEigenvalues)
 
     ###############################################################
