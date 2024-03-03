@@ -848,6 +848,11 @@ mutable struct Data{TFuncs<:Function, TVoltageFunc<:Function, TGenerationData<:U
     generationModel              ::  GenerationModelType
 
     """
+    Number of eigenvalues to be calculated for the Helmholtz problem.
+    """
+    numberOfEigenvalues          :: Int64
+
+    """
     An embedding parameter used to solve the nonlinear Poisson problem, where for
     λ1 = 0 the right hand-side is set to zero whereas for
     for λ1 = 1 we have a full space charge density.
@@ -1148,7 +1153,7 @@ including the physical parameters, but also some numerical information
 are located.
 
 """
-function Data(grid, numberOfCarriers; contactVoltageFunction = [zeroVoltage, zeroVoltage], generationData = [0.0], statfunctions::Type{TFuncs}=StandardFuncSet) where TFuncs
+function Data(grid, numberOfCarriers; contactVoltageFunction = [zeroVoltage, zeroVoltage], generationData = [0.0], statfunctions::Type{TFuncs}=StandardFuncSet, numberOfEigenvalues=0) where TFuncs
 
     numberOfBoundaryRegions                    = grid[NumBFaceRegions]
 
@@ -1200,12 +1205,13 @@ function Data(grid, numberOfCarriers; contactVoltageFunction = [zeroVoltage, zer
     ####                 Numerics information                  ####
     ###############################################################
     data.fluxApproximation                     = FluxApproximationType[ScharfetterGummel for i = 1:numberOfCarriers]
-    data.calculationType                       = InEquilibrium     # do performances InEquilibrium or OutOfEquilibrium
-    data.modelType                             = Stationary        # indicates if we need additional time dependent part
-    data.generationModel                       = GenerationNone    # generation model
-    data.λ1                                    = 1.0               # λ1: embedding parameter for NLP
-    data.λ2                                    = 1.0               # λ2: embedding parameter for G
-    data.λ3                                    = 1.0               # λ3: embedding parameter for electro chemical reaction
+    data.calculationType                       = InEquilibrium       # do performances InEquilibrium or OutOfEquilibrium
+    data.modelType                             = Stationary          # indicates if we need additional time dependent part
+    data.generationModel                       = GenerationNone      # generation model
+    data.numberOfEigenvalues                   = numberOfEigenvalues # number of eigenvalues for Helmholtz problem
+    data.λ1                                    = 1.0                 # λ1: embedding parameter for NLP
+    data.λ2                                    = 1.0                 # λ2: embedding parameter for G
+    data.λ3                                    = 1.0                 # λ3: embedding parameter for electro chemical reaction
 
     ###############################################################
     ####             Templates for DOS and BEE                 ####
