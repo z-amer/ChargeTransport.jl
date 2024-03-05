@@ -702,7 +702,7 @@ mutable struct ParamsOptical
     """
     An array of the eigenvalues.
     """
-    eigenvalues                  ::  Array{Float64,1}
+    eigenvalues                  ::  Array{Complex,1}
 
     ###############################################################
     ####        number of carriers x number of regions         ####
@@ -718,7 +718,7 @@ mutable struct ParamsOptical
     """
     A 2D array with the corresponding eigenvector for eah eigenvalue.
     """
-    eigenvectors                 ::  Array{Float64, 2}
+    eigenvectors                 ::  Array{Complex, 2}
 
     ###############################################################
     ParamsOptical() = new()
@@ -1127,7 +1127,7 @@ function ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
     ###############################################################
     ####                 number of eigenvalues                 ####
     ###############################################################
-    paramsoptical.eigenvalues           = spzeros(Float64, numberOfEigenvalues)
+    paramsoptical.eigenvalues           = spzeros(Complex, numberOfEigenvalues)
 
     ###############################################################
     ####        number of carriers x number of regions         ####
@@ -1137,7 +1137,7 @@ function ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
     ###############################################################
     ####        number of nodes x number of eigenvalues        ####
     ###############################################################
-    paramsoptical.eigenvectors          = spzeros(Float64, numberOfEigenvalues, numberOfNodes)
+    paramsoptical.eigenvectors          = spzeros(Complex, numberOfEigenvalues, numberOfNodes)
 
     ###############################################################
     return paramsoptical
