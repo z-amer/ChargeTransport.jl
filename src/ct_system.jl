@@ -847,10 +847,10 @@ mutable struct Data{TFuncs<:Function, TVoltageFunc<:Function, TGenerationData<:U
     """
     generationModel              ::  GenerationModelType
 
-    """
-    Number of eigenvalues to be calculated for the Helmholtz problem.
-    """
-    numberOfEigenvalues          :: Int64
+    # """
+    # Number of eigenvalues to be calculated for the Helmholtz problem.
+    # """
+    # numberOfEigenvalues          :: Int64
 
     """
     An embedding parameter used to solve the nonlinear Poisson problem, where for
@@ -1208,7 +1208,7 @@ function Data(grid, numberOfCarriers; contactVoltageFunction = [zeroVoltage, zer
     data.calculationType                       = InEquilibrium       # do performances InEquilibrium or OutOfEquilibrium
     data.modelType                             = Stationary          # indicates if we need additional time dependent part
     data.generationModel                       = GenerationNone      # generation model
-    data.numberOfEigenvalues                   = numberOfEigenvalues # number of eigenvalues for Helmholtz problem
+    # data.numberOfEigenvalues                   = numberOfEigenvalues # number of eigenvalues for Helmholtz problem
     data.λ1                                    = 1.0                 # λ1: embedding parameter for NLP
     data.λ2                                    = 1.0                 # λ2: embedding parameter for G
     data.λ3                                    = 1.0                 # λ3: embedding parameter for electro chemical reaction
@@ -1227,7 +1227,7 @@ function Data(grid, numberOfCarriers; contactVoltageFunction = [zeroVoltage, zer
     ###############################################################
     data.params                                = Params(grid, numberOfCarriers)
     data.paramsnodal                           = ParamsNodal(grid, numberOfCarriers)
-    data.paramsoptical                         = ParamsOptical(grid, numberOfCarriers, data.numberOfEigenvalues)
+    data.paramsoptical                         = ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
 
     ###############################################################
 
