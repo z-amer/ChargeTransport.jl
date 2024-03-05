@@ -912,6 +912,9 @@ mutable struct Data{TFuncs<:Function, TVoltageFunc<:Function, TGenerationData<:U
     """
     paramsnodal                  :: ParamsNodal
 
+    """
+    A struct holding the physical parameters for the Helmholz equation simulation in a laser.
+    """
     paramsoptical                :: ParamsOptical
 
     ###############################################################
