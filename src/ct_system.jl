@@ -1120,22 +1120,22 @@ function ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
     ###############################################################
     ####                 number of eigenvalues                 ####
     ###############################################################
-    paramsoptical.eigenvalues           = spzeros(Complex, numberOfEigenvalues)
+    paramsoptical.eigenvalues            = spzeros(Complex, numberOfEigenvalues)
 
     ###############################################################
     ####        number of carriers x number of regions         ####
     ###############################################################
-    paramsoptical.absorptionFreeCarriers       = spzeros(Float64, numberOfCarriers, numberOfRegions)
+    paramsoptical.absorptionFreeCarriers = spzeros(Float64, numberOfCarriers, numberOfRegions)
 
     ###############################################################
     ####        number of nodes x number of eigenvalues        ####
     ###############################################################
-    paramsoptical.eigenvectors          = spzeros(Complex, numberOfNodes, numberOfEigenvalues)
+    paramsoptical.eigenvectors           = spzeros(Complex, numberOfNodes, numberOfEigenvalues)
 
     ###############################################################
     ####        number of carriers + 1 x number of nodes       ####
     ###############################################################
-    paramsoptical.oldSolution           = spzeros(Float64, numberOfCarriers+1, numberOfNodes)
+    paramsoptical.oldSolution            = spzeros(Float64, numberOfCarriers+1, numberOfNodes)
 
     ###############################################################
     return paramsoptical
