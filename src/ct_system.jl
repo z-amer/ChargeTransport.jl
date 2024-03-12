@@ -649,23 +649,10 @@ mutable struct ParamsOptical
     """
     laserWavelength              ::  Float64
 
-    ###############################################################
-    ####                    number of nodes                    ####
-    ###############################################################
     """
-    A 1D array with the calculated values for the solution ``\\varphi_n`` on the nodes.
+    The laser power.
     """
-    oldSolutionPhin              ::  Array{Float64, 1}
-
-    """
-    A 1D array with the calculated values for the solution ``\\varphi_p`` on the nodes.
-    """
-    oldSolutionPhip              ::  Array{Float64, 1}
-
-    """
-    A 1D array with the calculated values for the solution ``\\psi`` on the nodes.
-    """
-    oldSolutionPsi               ::  Array{Float64, 1}
+    power                        ::  Float64
 
     ###############################################################
     ####                   number of regions                   ####
@@ -719,6 +706,15 @@ mutable struct ParamsOptical
     A 2D array with the corresponding eigenvector for eah eigenvalue.
     """
     eigenvectors                 ::  Array{Complex, 2}
+
+    ###############################################################
+    ####        number of carriers + 1 x number of nodes       ####
+    ###############################################################
+    """
+    A 2D array with the calculated solutions ``\\varphi_n``,
+    ``\\varphi_p`` and``\\psi`` in all the nodes.
+    """
+    oldSolution                  ::  Array{Float64, 2}
 
     ###############################################################
     ParamsOptical() = new()
@@ -1110,13 +1106,7 @@ function ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
     ####                     real numbers                      ####
     ###############################################################
     paramsoptical.laserWavelength              = 0.0
-
-    ###############################################################
-    ####                    number of nodes                    ####
-    ###############################################################
-    paramsoptical.oldSolutionPhin       = spzeros(Float64, numberOfNodes)
-    paramsoptical.oldSolutionPhip       = spzeros(Float64, numberOfNodes)
-    paramsoptical.oldSolutionPsi        = spzeros(Float64, numberOfNodes)
+    paramsoptical.power                        = 0.0
 
     ###############################################################
     ####                   number of regions                   ####
@@ -1140,7 +1130,12 @@ function ParamsOptical(grid, numberOfCarriers, numberOfEigenvalues)
     ###############################################################
     ####        number of nodes x number of eigenvalues        ####
     ###############################################################
-    paramsoptical.eigenvectors          = spzeros(Complex, numberOfEigenvalues, numberOfNodes)
+    paramsoptical.eigenvectors          = spzeros(Complex, numberOfNodes, numberOfEigenvalues)
+
+    ###############################################################
+    ####        number of carriers + 1 x number of nodes       ####
+    ###############################################################
+    paramsoptical.oldSolution           = spzeros(Float64, numberOfCarriers+1, numberOfNodes)
 
     ###############################################################
     return paramsoptical
