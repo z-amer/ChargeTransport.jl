@@ -699,7 +699,7 @@ function StimulatedRecombination(u,node, data,ipsi, iphin, iphip, n,p)      # su
     power     = paramsoptical.power         # paramsoptical.power?
     expTerm1  = exp((-q * u[iphin] - Ec + q * u[ipsi]) / kBT)             ## !!q psi
     expTerm2  = exp((Ev + q * u[iphip] - q * u[ipsi]) / kBT)
-    expTerm3  = exp( ( ((-q * (u[iphin] - u[iphip])) - (hbar * ω0)) / kBT ) - 1 )
+    expTerm3  = exp( ((-q * (u[iphin] - u[iphip])) - (hbar * ω0)) / kBT ) - 1
     gainDenominator  = (1 + expTerm1) * (1 + expTerm2)
     gain             = (g0 / gainDenominator)  *  expTerm3
 
