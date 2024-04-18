@@ -749,8 +749,8 @@ function addRecombination!(f, u, node, data, ::SRHWithoutTrapsType)
     ####       right-hand side of continuity equations     ####
     ####       for φ_n and φ_p (bipolar reaction)          ####
     ###########################################################
-    f[iphin] = q * params.chargeNumbers[iphin] * kernel * excessDensTerm  + q * stimulatedRecombination
-    f[iphip] = q * params.chargeNumbers[iphip] * kernel * excessDensTerm  + q * stimulatedRecombination
+    f[iphin] = q * params.chargeNumbers[iphin] * kernel * excessDensTerm  + q * params.chargeNumbers[iphin] * stimulatedRecombination
+    f[iphip] = q * params.chargeNumbers[iphip] * kernel * excessDensTerm  + q * params.chargeNumbers[iphip] * stimulatedRecombination
 
 end
 
