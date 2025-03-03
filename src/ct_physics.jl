@@ -744,6 +744,7 @@ function addRecombination!(f, u, node, data, ::SRHWithoutTrapsType)
 
     # calculate stimulatedRecombination
     stimulatedRecombination = StimulatedRecombination(u,node, data, ipsi, iphin, iphip, n,p)
+    # stimulatedRecombination = 0
 
     ###########################################################
     ####       right-hand side of continuity equations     ####

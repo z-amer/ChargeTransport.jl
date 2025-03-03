@@ -689,7 +689,7 @@ mutable struct ParamsOptical
     """
     An array of the eigenvalues.
     """
-    eigenvalues                  ::  Array{Complex,1}
+    eigenvalues                  ::  Array{Complex{Float64},1}
 
     ###############################################################
     ####        number of carriers x number of regions         ####
@@ -705,7 +705,7 @@ mutable struct ParamsOptical
     """
     A 2D array with the corresponding eigenvector for eah eigenvalue.
     """
-    eigenvectors                 ::  Array{Complex, 2}
+    eigenvectors                 ::  Array{Complex{Float64}, 2}
 
     ###############################################################
     ####        number of carriers + 1 x number of nodes       ####
@@ -1532,6 +1532,16 @@ function show_params(ctsys::System)
     for name in fieldnames(typeof(params))[1:end]
         @printf("%30s = ",name)
         println(getfield(params,name))
+    end
+
+end
+
+function show_paramsoptical(ctsys::System)              ##find command to shorten very long vectors in terminal output
+
+    paramsoptical = ctsys.data.paramsoptical
+    for name in fieldnames(typeof(paramsoptical))[1:end]
+        @printf("%30s = ",name)
+        println(display(getfield(paramsoptical,name)))
     end
 
 end
