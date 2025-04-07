@@ -910,7 +910,7 @@ and the numberOfCarriers as argument.
 """
 function ParamsNodal(grid, numberOfCarriers)
 
-    numberOfNodes  = length(grid[Coordinates])
+    numberOfNodes  = num_nodes(grid) # = length(grid[Coordinates][1,:])
 
     ###############################################################
 
